@@ -1,0 +1,16 @@
+# Development Dockerfile
+FROM node:20-alpine AS development
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm ci && npm cache clean --force
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 4000
+
+# Start in development mode with watch
+CMD ["npm", "run", "start:dev"]

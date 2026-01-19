@@ -1,0 +1,58 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build output
+dist
+build
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.example
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*.sublime-*
+.DS_Store
+
+# Testing
+coverage
+.nyc_output
+*.test.ts
+*.spec.ts
+test
+
+# Documentation
+README.md
+*.md
+docs
+
+# Docker
+docker-compose*.yml
+docker-compose.override.yml
+Dockerfile*
+.dockerignore
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Misc
+.editorconfig
+.prettierrc
+.eslintrc*
+eslint.config.*
