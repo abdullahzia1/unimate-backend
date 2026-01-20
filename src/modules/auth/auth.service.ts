@@ -406,6 +406,9 @@ export class AuthService {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
+      accessLevel: user.accessLevel,
+      departmentId: user.departmentId,
+      departmentIds: user.departmentIds,
     };
 
     const accessToken = this.jwtService.sign(payload);
@@ -448,6 +451,9 @@ export class AuthService {
         email: user.email,
         name: user.name,
         avatar: user.avatar,
+        accessLevel: user.accessLevel,
+        departmentId: user.departmentId,
+        departmentIds: user.departmentIds,
       },
     };
 
