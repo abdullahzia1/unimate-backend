@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Announcement } from './entities/announcement.entity';
+import { Department } from './entities/department.entity';
+import { Device } from './entities/device.entity';
 import { OtpVerification } from './entities/otp-verification.entity';
+import { PendingAccount } from './entities/pending-account.entity';
 import { PasswordReset } from './entities/password-reset.entity';
-import { ReferralWithdrawal } from './entities/referral-withdrawal.entity';
-import { ScanHistory } from './entities/scan-history.entity';
-import { SecureLinkCheck } from './entities/secure-link-check.entity';
-import { SpamUrl } from './entities/spam-url.entity';
+import { Timetable } from './entities/timetable.entity';
+import { TimetableHistory } from './entities/timetable-history.entity';
 import { User } from './entities/user.entity';
-import { Waitlist } from './entities/waitlist.entity';
 import { MigrationService } from './migration.service';
 
 @Module({
@@ -25,13 +26,14 @@ import { MigrationService } from './migration.service';
         database: configService.get('database.database'),
         entities: [
           User,
-          ScanHistory,
-          SecureLinkCheck,
+          Department,
+          PendingAccount,
+          Timetable,
+          TimetableHistory,
+          Announcement,
+          Device,
           OtpVerification,
           PasswordReset,
-          Waitlist,
-          ReferralWithdrawal,
-          SpamUrl,
         ],
         synchronize: false,
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
@@ -44,13 +46,14 @@ import { MigrationService } from './migration.service';
     }),
     TypeOrmModule.forFeature([
       User,
-      ScanHistory,
-      SecureLinkCheck,
+      Department,
+      PendingAccount,
+      Timetable,
+      TimetableHistory,
+      Announcement,
+      Device,
       OtpVerification,
       PasswordReset,
-      Waitlist,
-      ReferralWithdrawal,
-      SpamUrl,
     ]),
   ],
   providers: [MigrationService],
