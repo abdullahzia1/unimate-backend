@@ -35,7 +35,7 @@ export default (): AppConfig => {
     },
     postmark: {
       apiKey: process.env.POSTMARK_API_KEY,
-      fromName: process.env.POSTMARK_FROM_NAME || 'OneOrb Shield',
+      fromName: process.env.POSTMARK_FROM_NAME || 'Unimate',
       fromEmail: process.env.POSTMARK_FROM_EMAIL,
     },
     smtp: {
@@ -64,7 +64,7 @@ export default (): AppConfig => {
     auth: {
       otpExpiryMinutes: parseInt(process.env.OTP_EXPIRY_MINUTES || '10', 10),
     },
-    adminEmail: process.env.ADMIN_EMAIL || 'usama@oneorb.ai',
+    adminEmail: process.env.ADMIN_EMAIL || 'noreply@unimate.com',
     autoRunMigrations: process.env.AUTO_RUN_MIGRATIONS !== 'false',
   };
 };

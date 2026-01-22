@@ -49,7 +49,7 @@ async function bootstrap() {
       'http://localhost:3000', // Development
       'http://localhost:5173', // Vite dev server
       /^file:\/\//, // Electron file protocol
-      /^oneorbshield:\/\//, // Your custom protocol
+      /^unimate:\/\//, // Your custom protocol
     ],
     credentials: true,
   });

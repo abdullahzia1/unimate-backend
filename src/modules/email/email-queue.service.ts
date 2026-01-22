@@ -282,15 +282,15 @@ export class EmailQueueService implements OnModuleInit {
       fromName: string;
     }>('postmark');
     const fromEmail = smtpConfig?.fromEmail;
-    const fromName = postmarkConfig?.fromName || 'OneOrb Shield';
+    const fromName = postmarkConfig?.fromName || 'Unimate';
 
     let subject: string;
     let textBody: string;
     let htmlBody: string;
 
     if (type === 'otp') {
-      subject = 'Verify Your Email - OneOrb Shield';
-      textBody = `Hi ${data.name},\n\nYour verification code is: ${data.otp!}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this code, please ignore this email.\n\nBest regards,\nOneOrb Shield Team`;
+      subject = 'Verify Your Email - Unimate';
+      textBody = `Hi ${data.name},\n\nYour verification code is: ${data.otp!}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this code, please ignore this email.\n\nBest regards,\nUnimate Team`;
       htmlBody = this.buildOtpHtml(data.name, data.otp!);
     } else if (type === 'password-reset') {
       const securityConfig = this.configService.get<{
@@ -298,19 +298,19 @@ export class EmailQueueService implements OnModuleInit {
       }>('security');
       const frontendUrl = securityConfig?.frontendUrl;
       const resetLink = `${frontendUrl}/reset-password?token=${data.resetToken!}`;
-      subject = 'Reset Your Password - OneOrb Shield';
-      textBody = `Hi ${data.name},\n\nReset your password: ${resetLink}\n\nThis link will expire in 1 hour.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nOneOrb Shield Team`;
+      subject = 'Reset Your Password - Unimate';
+      textBody = `Hi ${data.name},\n\nReset your password: ${resetLink}\n\nThis link will expire in 1 hour.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nUnimate Team`;
       htmlBody = this.buildPasswordResetHtml(data.name, resetLink);
     } else if (type === 'waitlist-welcome') {
-      subject = 'Welcome to the Waitlist - OneOrb Shield';
-      textBody = `Hi ${data.name},\n\nThank you for joining the waitlist for OneOrb Shield ${data.platform || 'Windows'} version!\n\nWe'll notify you as soon as the ${data.platform || 'Windows'} version is available for download.\n\nBest regards,\nOneOrb Shield Team`;
+      subject = 'Welcome to the Waitlist - Unimate';
+      textBody = `Hi ${data.name},\n\nThank you for joining the waitlist for Unimate ${data.platform || 'Windows'} version!\n\nWe'll notify you as soon as the ${data.platform || 'Windows'} version is available for download.\n\nBest regards,\nUnimate Team`;
       htmlBody = this.buildWaitlistWelcomeHtml(
         data.name,
         data.platform || 'Windows',
       );
     } else if (type === 'waitlist-already-exists') {
-      subject = "You're Already on the Waitlist - OneOrb Shield";
-      textBody = `Hi ${data.name},\n\nYou're already on our waitlist! We'll notify you as soon as the Windows version is available.\n\nThank you for your interest!\n\nBest regards,\nOneOrb Shield Team`;
+      subject = "You're Already on the Waitlist - Unimate";
+      textBody = `Hi ${data.name},\n\nYou're already on our waitlist! We'll notify you as soon as the Windows version is available.\n\nThank you for your interest!\n\nBest regards,\nUnimate Team`;
       htmlBody = this.buildWaitlistAlreadyExistsHtml(data.name);
     } else {
       throw new Error(`Unknown email type: ${type as string}`);
@@ -343,7 +343,7 @@ export class EmailQueueService implements OnModuleInit {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🛡️ OneOrb Shield</h1>
+            <h1>🛡️ Unimate</h1>
             <p>Email Verification</p>
           </div>
           <div class="content">
@@ -354,10 +354,10 @@ export class EmailQueueService implements OnModuleInit {
             </div>
             <p><strong>This code will expire in 10 minutes.</strong></p>
             <p>If you didn't request this code, please ignore this email.</p>
-            <p>Best regards,<br>The OneOrb Shield Team</p>
+            <p>Best regards,<br>The Unimate Team</p>
           </div>
           <div class="footer">
-            <p>© ${new Date().getFullYear()} OneOrb Shield. All rights reserved.</p>
+            <p>© ${new Date().getFullYear()} Unimate. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -384,7 +384,7 @@ export class EmailQueueService implements OnModuleInit {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🛡️ OneOrb Shield</h1>
+            <h1>🛡️ Unimate</h1>
             <p>Password Reset Request</p>
           </div>
           <div class="content">
@@ -399,10 +399,10 @@ export class EmailQueueService implements OnModuleInit {
               <p style="margin: 0;"><strong>⚠️ This link will expire in 1 hour.</strong></p>
             </div>
             <p>If you didn't request this password reset, please ignore this email. Your password will remain unchanged.</p>
-            <p>Best regards,<br>The OneOrb Shield Team</p>
+            <p>Best regards,<br>The Unimate Team</p>
           </div>
           <div class="footer">
-            <p>© ${new Date().getFullYear()} OneOrb Shield. All rights reserved.</p>
+            <p>© ${new Date().getFullYear()} Unimate. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -429,21 +429,21 @@ export class EmailQueueService implements OnModuleInit {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🛡️ OneOrb Shield</h1>
+            <h1>🛡️ Unimate</h1>
             <p>Welcome to the Waitlist!</p>
           </div>
           <div class="content">
             <p>Hi ${name},</p>
-            <p>Thank you for joining the waitlist for <strong>OneOrb Shield ${platform}</strong> version!</p>
+            <p>Thank you for joining the waitlist for <strong>Unimate ${platform}</strong> version!</p>
             <div class="info-box">
               <p style="margin: 0;"><strong>📧 What's Next?</strong></p>
               <p style="margin: 10px 0 0 0;">We'll notify you via email as soon as the ${platform} version is available for download. Stay tuned!</p>
             </div>
-            <p>In the meantime, you can check out our website to learn more about OneOrb Shield and its features.</p>
-            <p>Best regards,<br>The OneOrb Shield Team</p>
+            <p>In the meantime, you can check out our website to learn more about Unimate and its features.</p>
+            <p>Best regards,<br>The Unimate Team</p>
           </div>
           <div class="footer">
-            <p>© ${new Date().getFullYear()} OneOrb Shield. All rights reserved.</p>
+            <p>© ${new Date().getFullYear()} Unimate. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -468,7 +468,7 @@ export class EmailQueueService implements OnModuleInit {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🛡️ OneOrb Shield</h1>
+            <h1>🛡️ Unimate</h1>
             <p>You're Already on the Waitlist!</p>
           </div>
           <div class="content">
@@ -478,11 +478,11 @@ export class EmailQueueService implements OnModuleInit {
               <p style="margin: 0;"><strong>✅ You're All Set!</strong></p>
               <p style="margin: 10px 0 0 0;">No need to sign up again. We have your email and will notify you when the Windows version is ready.</p>
             </div>
-            <p>Thank you for your interest in OneOrb Shield!</p>
-            <p>Best regards,<br>The OneOrb Shield Team</p>
+            <p>Thank you for your interest in Unimate!</p>
+            <p>Best regards,<br>The Unimate Team</p>
           </div>
           <div class="footer">
-            <p>© ${new Date().getFullYear()} OneOrb Shield. All rights reserved.</p>
+            <p>© ${new Date().getFullYear()} Unimate. All rights reserved.</p>
           </div>
         </div>
       </body>
