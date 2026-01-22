@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Announcement } from './entities/announcement.entity';
 import { Department } from './entities/department.entity';
 import { Device } from './entities/device.entity';
+import { NotificationLog } from './entities/notification-log.entity';
 import { OtpVerification } from './entities/otp-verification.entity';
 import { PendingAccount } from './entities/pending-account.entity';
 import { PasswordReset } from './entities/password-reset.entity';
@@ -32,6 +33,7 @@ import { MigrationService } from './migration.service';
           TimetableHistory,
           Announcement,
           Device,
+          NotificationLog,
           OtpVerification,
           PasswordReset,
         ],
@@ -52,6 +54,7 @@ import { MigrationService } from './migration.service';
       TimetableHistory,
       Announcement,
       Device,
+      NotificationLog,
       OtpVerification,
       PasswordReset,
     ]),
