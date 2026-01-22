@@ -4,6 +4,8 @@ import { Repository, In } from 'typeorm';
 import { Device } from '../../database/entities/device.entity';
 import { validateDepartmentAccess } from '../../common/utils/access-control.util';
 import { UserAccess } from '../auth/interfaces/auth.interface';
+import { NotificationQueueService } from './services/notification-queue.service';
+import { PushNotificationService } from './services/push-notification.service';
 
 export interface DeviceCount {
   students: number;
@@ -24,6 +26,8 @@ export class NotificationService {
   constructor(
     @InjectRepository(Device)
     private deviceRepository: Repository<Device>,
+    private notificationQueue: NotificationQueueService,
+    private pushNotificationService: PushNotificationService,
   ) {}
 
   /**
@@ -66,9 +70,7 @@ export class NotificationService {
   }
 
   /**
-   * Send timetable notification
-   * Note: Actual FCM sending would require firebase-admin SDK
-   * This is a placeholder structure
+   * Send timetable notification (queued)
    */
   async sendTimetableNotification(
     departmentId: string,
@@ -77,10 +79,13 @@ export class NotificationService {
   ): Promise<NotificationResult> {
     validateDepartmentAccess(userAccess, departmentId);
 
-    const tokens = await this.getTokensByDepartment(departmentId);
+    const devices = await this.deviceRepository.find({
+      where: { departmentId },
+      select: ['token', 'platform'],
+    });
 
-    if (tokens.length === 0) {
-      this.logger.warn(`No FCM tokens found for department ${departmentId}`);
+    if (devices.length === 0) {
+      this.logger.warn(`No devices found for department ${departmentId}`);
       return {
         deliveredTo: 0,
         failedCount: 0,
@@ -88,21 +93,63 @@ export class NotificationService {
       };
     }
 
-    // TODO: Implement actual FCM sending using firebase-admin
-    // For now, this is a placeholder
+    // Group tokens by platform
+    const iosTokens: string[] = [];
+    const androidTokens: string[] = [];
+
+    devices.forEach((device) => {
+      const platform = (device.platform || 'android') as 'ios' | 'android';
+      if (platform === 'ios') {
+        iosTokens.push(device.token);
+      } else {
+        androidTokens.push(device.token);
+      }
+    });
+
+    // Queue notifications for each platform
+    const payload = {
+      title: 'Timetable Updated',
+      body: 'Your timetable has been updated. Tap to view changes.',
+      data: {
+        type: 'timetable',
+        departmentId,
+        timetableId,
+      },
+    };
+
+    if (iosTokens.length > 0) {
+      await this.notificationQueue.queueTimetableNotification(
+        iosTokens,
+        'ios',
+        payload,
+        departmentId,
+        { timetableId },
+      );
+    }
+
+    if (androidTokens.length > 0) {
+      await this.notificationQueue.queueTimetableNotification(
+        androidTokens,
+        'android',
+        payload,
+        departmentId,
+        { timetableId },
+      );
+    }
+
     this.logger.log(
-      `Would send timetable notification to ${tokens.length} devices in department ${departmentId}`,
+      `Timetable notification queued: ${devices.length} devices in department ${departmentId}`,
     );
 
     return {
-      deliveredTo: tokens.length,
+      deliveredTo: 0, // Will be updated by worker
       failedCount: 0,
-      totalDevices: tokens.length,
+      totalDevices: devices.length,
     };
   }
 
   /**
-   * Send custom notification
+   * Send custom notification (queued)
    */
   async sendCustomNotification(
     targetDepartments: string[] | 'all',
@@ -118,16 +165,31 @@ export class NotificationService {
       }
     }
 
-    let tokens: string[] = [];
+    let devices: Device[] = [];
 
     if (targetDepartments === 'all') {
-      tokens = await this.getTokensByGlobal();
+      devices = await this.deviceRepository.find({
+        select: ['token', 'platform'],
+      });
     } else {
-      tokens = await this.getTokensByDepartments(targetDepartments);
+      devices = await this.deviceRepository.find({
+        where: { departmentId: In(targetDepartments) },
+        select: ['token', 'platform'],
+      });
     }
 
-    if (tokens.length === 0) {
-      this.logger.warn('No FCM tokens found');
+    // Remove duplicates by token
+    const uniqueDevices = new Map<string, Device>();
+    devices.forEach((d) => {
+      if (!uniqueDevices.has(d.token)) {
+        uniqueDevices.set(d.token, d);
+      }
+    });
+
+    const deviceList = Array.from(uniqueDevices.values());
+
+    if (deviceList.length === 0) {
+      this.logger.warn('No devices found');
       return {
         deliveredTo: 0,
         failedCount: 0,
@@ -135,20 +197,53 @@ export class NotificationService {
       };
     }
 
-    // TODO: Implement actual FCM sending using firebase-admin
-    this.logger.log(
-      `Would send custom notification to ${tokens.length} devices`,
-    );
+    // Group tokens by platform
+    const iosTokens: string[] = [];
+    const androidTokens: string[] = [];
+
+    deviceList.forEach((device) => {
+      const platform = (device.platform || 'android') as 'ios' | 'android';
+      if (platform === 'ios') {
+        iosTokens.push(device.token);
+      } else {
+        androidTokens.push(device.token);
+      }
+    });
+
+    const payload = {
+      title,
+      body,
+      data: data as Record<string, string | number | boolean> | undefined,
+    };
+
+    // Queue notifications for each platform
+    if (iosTokens.length > 0) {
+      await this.notificationQueue.queueCustomNotification(
+        iosTokens,
+        'ios',
+        payload,
+      );
+    }
+
+    if (androidTokens.length > 0) {
+      await this.notificationQueue.queueCustomNotification(
+        androidTokens,
+        'android',
+        payload,
+      );
+    }
+
+    this.logger.log(`Custom notification queued: ${deviceList.length} devices`);
 
     return {
-      deliveredTo: tokens.length,
+      deliveredTo: 0, // Will be updated by worker
       failedCount: 0,
-      totalDevices: tokens.length,
+      totalDevices: deviceList.length,
     };
   }
 
   /**
-   * Send announcement notification
+   * Send announcement notification (queued)
    */
   async sendAnnouncementNotification(
     announcementText: string,
@@ -162,16 +257,31 @@ export class NotificationService {
       }
     }
 
-    let tokens: string[] = [];
+    let devices: Device[] = [];
 
     if (targetDepartments === 'all') {
-      tokens = await this.getTokensByGlobal();
+      devices = await this.deviceRepository.find({
+        select: ['token', 'platform'],
+      });
     } else {
-      tokens = await this.getTokensByDepartments(targetDepartments);
+      devices = await this.deviceRepository.find({
+        where: { departmentId: In(targetDepartments) },
+        select: ['token', 'platform'],
+      });
     }
 
-    if (tokens.length === 0) {
-      this.logger.warn('No FCM tokens found');
+    // Remove duplicates by token
+    const uniqueDevices = new Map<string, Device>();
+    devices.forEach((d) => {
+      if (!uniqueDevices.has(d.token)) {
+        uniqueDevices.set(d.token, d);
+      }
+    });
+
+    const deviceList = Array.from(uniqueDevices.values());
+
+    if (deviceList.length === 0) {
+      this.logger.warn('No devices found');
       return {
         deliveredTo: 0,
         failedCount: 0,
@@ -179,15 +289,58 @@ export class NotificationService {
       };
     }
 
-    // TODO: Implement actual FCM sending using firebase-admin
+    // Truncate announcement text for notification
+    const truncatedText =
+      announcementText.length > 100
+        ? announcementText.substring(0, 100) + '...'
+        : announcementText;
+
+    // Group tokens by platform
+    const iosTokens: string[] = [];
+    const androidTokens: string[] = [];
+
+    deviceList.forEach((device) => {
+      const platform = (device.platform || 'android') as 'ios' | 'android';
+      if (platform === 'ios') {
+        iosTokens.push(device.token);
+      } else {
+        androidTokens.push(device.token);
+      }
+    });
+
+    const payload = {
+      title: 'New Announcement',
+      body: truncatedText,
+      data: {
+        type: 'announcement',
+      },
+    };
+
+    // Queue notifications for each platform
+    if (iosTokens.length > 0) {
+      await this.notificationQueue.queueAnnouncementNotification(
+        iosTokens,
+        'ios',
+        payload,
+      );
+    }
+
+    if (androidTokens.length > 0) {
+      await this.notificationQueue.queueAnnouncementNotification(
+        androidTokens,
+        'android',
+        payload,
+      );
+    }
+
     this.logger.log(
-      `Would send announcement notification to ${tokens.length} devices`,
+      `Announcement notification queued: ${deviceList.length} devices`,
     );
 
     return {
-      deliveredTo: tokens.length,
+      deliveredTo: 0, // Will be updated by worker
       failedCount: 0,
-      totalDevices: tokens.length,
+      totalDevices: deviceList.length,
     };
   }
 

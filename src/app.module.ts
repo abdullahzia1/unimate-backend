@@ -16,6 +16,7 @@ import { CleaningModule } from './modules/cleaning/cleaning.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { HealthModule } from './modules/health/health.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import { StorageModule } from './modules/storage/storage.module';
 import { TimetableModule } from './modules/timetable/timetable.module';
 import { UserModule } from './modules/user/user.module';
 
@@ -67,6 +68,7 @@ const createThrottlerModule = (): DynamicModule => {
     AnnouncementModule,
     TimetableModule,
     NotificationModule,
+    StorageModule,
     CleaningModule,
     HealthModule,
   ],

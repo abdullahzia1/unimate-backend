@@ -33,4 +33,5 @@ export class CleanupOptionsDto {
   @IsString({ each: true })
   @IsOptional()
   departmentIds?: string[];
+  timetableHistory: any;
 }

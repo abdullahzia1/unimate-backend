@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { JwtPayload, UserAccess } from '../auth/interfaces/auth.interface';
+import type { JwtPayload, UserAccess } from '../auth/interfaces/auth.interface';
 import { RequireDepartmentAccess } from '../../common/decorators/department-access.decorator';
 import { DepartmentAccessGuard } from '../../common/guards/department-access.guard';
 import { getDepartmentIds } from '../../common/utils/access-control.util';
