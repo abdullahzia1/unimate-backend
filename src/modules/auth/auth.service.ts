@@ -71,8 +71,10 @@ export class AuthService {
 
     // Calculate expiry time (10 minutes from now)
     const expiresAt = new Date();
-    const expiryMinutes =
-      this.configService.get<number>('OTP_EXPIRY_MINUTES') || 10;
+    const authConfig = this.configService.get<{
+      otpExpiryMinutes: number;
+    }>('auth');
+    const expiryMinutes = authConfig?.otpExpiryMinutes || 10;
     expiresAt.setMinutes(expiresAt.getMinutes() + expiryMinutes);
 
     // Delete any existing OTP for this email
@@ -206,8 +208,10 @@ export class AuthService {
 
     // Update expiry time
     const expiresAt = new Date();
-    const expiryMinutes =
-      this.configService.get<number>('OTP_EXPIRY_MINUTES') || 10;
+    const authConfig = this.configService.get<{
+      otpExpiryMinutes: number;
+    }>('auth');
+    const expiryMinutes = authConfig?.otpExpiryMinutes || 10;
     expiresAt.setMinutes(expiresAt.getMinutes() + expiryMinutes);
 
     // Update OTP record
@@ -381,8 +385,10 @@ export class AuthService {
    * Hash password
    */
   private async hashPassword(password: string): Promise<string> {
-    const rounds =
-      this.configService.get<number>('security.bcryptRounds') || 10;
+    const securityConfig = this.configService.get<{
+      bcryptRounds: number;
+    }>('security');
+    const rounds = securityConfig?.bcryptRounds || 10;
     return await bcrypt.hash(password, rounds);
   }
 

@@ -35,12 +35,17 @@ export class StorageService {
   }
 
   private initializeS3(): void {
-    const accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get<string>(
-      'AWS_SECRET_ACCESS_KEY',
-    );
-    this.region = this.configService.get<string>('AWS_REGION', 'us-east-1');
-    this.bucketName = this.configService.get<string>('AWS_S3_BUCKET_NAME', '');
+    const awsConfig = this.configService.get<{
+      accessKeyId?: string;
+      secretAccessKey?: string;
+      region: string;
+      s3BucketName?: string;
+    }>('aws');
+
+    const accessKeyId = awsConfig?.accessKeyId;
+    const secretAccessKey = awsConfig?.secretAccessKey;
+    this.region = awsConfig?.region || 'us-east-1';
+    this.bucketName = awsConfig?.s3BucketName || '';
 
     if (!accessKeyId || !secretAccessKey || !this.bucketName) {
       this.logger.warn(

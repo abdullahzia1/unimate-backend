@@ -15,14 +15,21 @@ export class APNsConfigService {
   constructor(private configService: ConfigService) {}
 
   getConfig(): APNsConfig | null {
-    const keyId = this.configService.get<string>('APNS_KEY_ID');
-    const teamId = this.configService.get<string>('APNS_TEAM_ID');
-    const bundleId = this.configService.get<string>('APNS_BUNDLE_ID');
-    const key = this.configService.get<string>('APNS_PRIVATE_KEY');
-    const production =
-      this.configService.get<string>('APNS_PRODUCTION', 'false') === 'true';
+    const apnsConfig = this.configService.get<{
+      keyId?: string;
+      teamId?: string;
+      bundleId?: string;
+      privateKey?: string;
+      production: boolean;
+    }>('apns');
 
-    if (!keyId || !teamId || !bundleId || !key) {
+    if (!apnsConfig) {
+      return null;
+    }
+
+    const { keyId, teamId, bundleId, privateKey, production } = apnsConfig;
+
+    if (!keyId || !teamId || !bundleId || !privateKey) {
       return null;
     }
 
@@ -30,7 +37,7 @@ export class APNsConfigService {
       keyId,
       teamId,
       bundleId,
-      key,
+      key: privateKey,
       production,
       defaultTopic: bundleId,
     };

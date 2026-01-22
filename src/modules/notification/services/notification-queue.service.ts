@@ -11,9 +11,13 @@ export class NotificationQueueService implements OnModuleInit {
   private announcementQueue: Queue.Queue<NotificationJob>;
 
   constructor(private configService: ConfigService) {
+    const redisConfigObj = this.configService.get<{
+      host: string;
+      port: number;
+    }>('redis');
     const redisConfig = {
-      host: this.configService.get<string>('REDIS_HOST', 'localhost'),
-      port: this.configService.get<number>('REDIS_PORT', 6379),
+      host: redisConfigObj?.host || 'localhost',
+      port: redisConfigObj?.port || 6379,
     };
 
     const queueOptions: Queue.QueueOptions = {

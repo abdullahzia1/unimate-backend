@@ -30,10 +30,14 @@ export class EmailQueueService implements OnModuleInit {
     private emailService: EmailService,
   ) {
     // Initialize Bull queue with Redis
+    const redisConfig = this.configService.get<{
+      host: string;
+      port: number;
+    }>('redis');
     this.emailQueue = new Queue('email-queue', {
       redis: {
-        host: this.configService.get<string>('REDIS_HOST', 'localhost'),
-        port: this.configService.get<number>('REDIS_PORT', 6379),
+        host: redisConfig?.host || 'localhost',
+        port: redisConfig?.port || 6379,
       },
       defaultJobOptions: {
         attempts: 3,
@@ -47,10 +51,16 @@ export class EmailQueueService implements OnModuleInit {
     });
 
     // Initialize custom SMTP (AWS SES)
-    const smtpHost = this.configService.get<string>('SMTP_HOST');
-    const smtpPort = this.configService.get<number>('SMTP_PORT');
-    const smtpUser = this.configService.get<string>('SMTP_USER');
-    const smtpPass = this.configService.get<string>('SMTP_PASS');
+    const smtpConfig = this.configService.get<{
+      host?: string;
+      port?: number;
+      user?: string;
+      pass?: string;
+    }>('smtp');
+    const smtpHost = smtpConfig?.host;
+    const smtpPort = smtpConfig?.port;
+    const smtpUser = smtpConfig?.user;
+    const smtpPass = smtpConfig?.pass;
 
     if (smtpHost && smtpPort && smtpUser && smtpPass) {
       this.smtpTransporter = nodemailer.createTransport({
@@ -265,11 +275,14 @@ export class EmailQueueService implements OnModuleInit {
       throw new Error('SMTP transporter not initialized');
     }
 
-    const fromEmail = this.configService.get<string>('SMTP_FROM_EMAIL');
-    const fromName = this.configService.get<string>(
-      'SMTP_FROM_NAME',
-      'OneOrb Shield',
-    );
+    const smtpConfig = this.configService.get<{
+      fromEmail?: string;
+    }>('smtp');
+    const postmarkConfig = this.configService.get<{
+      fromName: string;
+    }>('postmark');
+    const fromEmail = smtpConfig?.fromEmail;
+    const fromName = postmarkConfig?.fromName || 'OneOrb Shield';
 
     let subject: string;
     let textBody: string;
@@ -280,7 +293,10 @@ export class EmailQueueService implements OnModuleInit {
       textBody = `Hi ${data.name},\n\nYour verification code is: ${data.otp!}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this code, please ignore this email.\n\nBest regards,\nOneOrb Shield Team`;
       htmlBody = this.buildOtpHtml(data.name, data.otp!);
     } else if (type === 'password-reset') {
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL');
+      const securityConfig = this.configService.get<{
+        frontendUrl: string;
+      }>('security');
+      const frontendUrl = securityConfig?.frontendUrl;
       const resetLink = `${frontendUrl}/reset-password?token=${data.resetToken!}`;
       subject = 'Reset Your Password - OneOrb Shield';
       textBody = `Hi ${data.name},\n\nReset your password: ${resetLink}\n\nThis link will expire in 1 hour.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nOneOrb Shield Team`;

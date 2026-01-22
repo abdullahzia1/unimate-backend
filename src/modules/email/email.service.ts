@@ -9,9 +9,11 @@ export class EmailService {
 
   constructor(private configService: ConfigService) {
     // Initialize Postmark
-    const postmarkApiKey = this.configService.get<string>('POSTMARK_API_KEY');
-    if (postmarkApiKey) {
-      this.postmarkClient = new postmark.ServerClient(postmarkApiKey);
+    const postmarkConfig = this.configService.get<{
+      apiKey?: string;
+    }>('postmark');
+    if (postmarkConfig?.apiKey) {
+      this.postmarkClient = new postmark.ServerClient(postmarkConfig.apiKey);
       this.logger.log('Postmark initialized successfully as fallback');
     } else {
       this.logger.warn(
@@ -21,8 +23,11 @@ export class EmailService {
   }
 
   async sendOtpEmail(email: string, otp: string, name: string): Promise<void> {
-    const fromName =
-      this.configService.get<string>('POSTMARK_FROM_NAME') || 'OneOrb Shield';
+    const postmarkConfig = this.configService.get<{
+      fromName: string;
+      fromEmail?: string;
+    }>('postmark');
+    const fromName = postmarkConfig?.fromName || 'OneOrb Shield';
 
     const subject = 'Verify Your Email - OneOrb Shield';
     const textBody = `Hi ${name},\n\nYour verification code is: ${otp}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this code, please ignore this email.\n\nBest regards,\nOneOrb Shield Team`;
@@ -70,9 +75,11 @@ export class EmailService {
 
     if (this.postmarkClient) {
       try {
+        const postmarkConfig = this.configService.get<{
+          fromEmail?: string;
+        }>('postmark');
         const postmarkFromEmail =
-          this.configService.get<string>('POSTMARK_FROM_EMAIL') ||
-          'usama@oneorb.ai';
+          postmarkConfig?.fromEmail || 'usama@oneorb.ai';
 
         const result = await this.postmarkClient.sendEmail({
           From: `${fromName} <${postmarkFromEmail}>`,
@@ -106,10 +113,15 @@ export class EmailService {
     resetToken: string,
     name: string,
   ): Promise<void> {
-    const fromName =
-      this.configService.get<string>('POSTMARK_FROM_NAME') || 'OneOrb Shield';
-    const frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+    const postmarkConfig = this.configService.get<{
+      fromName: string;
+      fromEmail?: string;
+    }>('postmark');
+    const securityConfig = this.configService.get<{
+      frontendUrl: string;
+    }>('security');
+    const fromName = postmarkConfig?.fromName || 'OneOrb Shield';
+    const frontendUrl = securityConfig?.frontendUrl || 'http://localhost:3000';
     const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
 
     const subject = 'Reset Your Password - OneOrb Shield';
@@ -163,9 +175,11 @@ export class EmailService {
   `;
     if (this.postmarkClient) {
       try {
+        const postmarkConfig = this.configService.get<{
+          fromEmail?: string;
+        }>('postmark');
         const postmarkFromEmail =
-          this.configService.get<string>('POSTMARK_FROM_EMAIL') ||
-          'usama@oneorb.ai';
+          postmarkConfig?.fromEmail || 'usama@oneorb.ai';
 
         const result = await this.postmarkClient.sendEmail({
           From: `${fromName} <${postmarkFromEmail}>`,
@@ -200,8 +214,11 @@ export class EmailService {
     transactionId: string,
     name: string,
   ): Promise<void> {
-    const fromName =
-      this.configService.get<string>('POSTMARK_FROM_NAME') || 'OneOrb Shield';
+    const postmarkConfig = this.configService.get<{
+      fromName: string;
+      fromEmail?: string;
+    }>('postmark');
+    const fromName = postmarkConfig?.fromName || 'OneOrb Shield';
 
     const subject = 'Withdrawal Request Confirmation - OneOrb Shield';
     const textBody = `Hi ${name},\n\nYour withdrawal request has been submitted successfully.\n\nDetails:\n- Amount: $${amount.toFixed(2)}\n- Transaction ID: ${transactionId}\n\nWe will process your request and contact you via email once it's completed. This typically takes 3-5 business days.\n\nIf you have any questions, please contact our support team.\n\nBest regards,\nOneOrb Shield Team`;
@@ -262,9 +279,11 @@ export class EmailService {
 
     if (this.postmarkClient) {
       try {
+        const postmarkConfig = this.configService.get<{
+          fromEmail?: string;
+        }>('postmark');
         const postmarkFromEmail =
-          this.configService.get<string>('POSTMARK_FROM_EMAIL') ||
-          'usama@oneorb.ai';
+          postmarkConfig?.fromEmail || 'usama@oneorb.ai';
 
         const result = await this.postmarkClient.sendEmail({
           From: `${fromName} <${postmarkFromEmail}>`,
@@ -300,10 +319,13 @@ export class EmailService {
     transactionId: string,
     withdrawalId: string,
   ): Promise<void> {
-    const fromName =
-      this.configService.get<string>('POSTMARK_FROM_NAME') || 'OneOrb Shield';
+    const postmarkConfig = this.configService.get<{
+      fromName: string;
+      fromEmail?: string;
+    }>('postmark');
     const adminEmail =
-      this.configService.get<string>('ADMIN_EMAIL') || 'usama@oneorb.ai';
+      this.configService.get<string>('adminEmail') || 'usama@oneorb.ai';
+    const fromName = postmarkConfig?.fromName || 'OneOrb Shield';
 
     const subject = `[Action Required] New Withdrawal Request - ${transactionId}`;
     const textBody = `A new withdrawal request has been submitted.\n\nUser Details:\n- Name: ${userName}\n- Email: ${userEmail}\n\nWithdrawal Details:\n- Amount: $${amount.toFixed(2)}\n- Transaction ID: ${transactionId}\n- Withdrawal ID: ${withdrawalId}\n\nPlease process this withdrawal request manually.`;
@@ -376,9 +398,11 @@ export class EmailService {
 
     if (this.postmarkClient) {
       try {
+        const postmarkConfig = this.configService.get<{
+          fromEmail?: string;
+        }>('postmark');
         const postmarkFromEmail =
-          this.configService.get<string>('POSTMARK_FROM_EMAIL') ||
-          'usama@oneorb.ai';
+          postmarkConfig?.fromEmail || 'usama@oneorb.ai';
 
         const result = await this.postmarkClient.sendEmail({
           From: `${fromName} <${postmarkFromEmail}>`,

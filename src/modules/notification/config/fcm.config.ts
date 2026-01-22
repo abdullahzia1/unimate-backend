@@ -14,16 +14,23 @@ export class FCMConfigService {
   constructor(private configService: ConfigService) {}
 
   getConfig(): FCMConfig | null {
-    const useV1API =
-      this.configService.get<string>('FCM_USE_V1_API', 'true') === 'true';
+    const fcmConfig = this.configService.get<{
+      useV1Api: boolean;
+      projectId?: string;
+      privateKey?: string;
+      clientEmail?: string;
+      serverKey?: string;
+    }>('fcm');
 
-    if (useV1API) {
+    if (!fcmConfig) {
+      return null;
+    }
+
+    if (fcmConfig.useV1Api) {
       // FCM HTTP v1 API (recommended)
-      const projectId = this.configService.get<string>('FCM_PROJECT_ID');
-      const privateKey = this.configService
-        .get<string>('FCM_PRIVATE_KEY')
-        ?.replace(/\\n/g, '\n');
-      const clientEmail = this.configService.get<string>('FCM_CLIENT_EMAIL');
+      const projectId = fcmConfig.projectId;
+      const privateKey = fcmConfig.privateKey?.replace(/\\n/g, '\n');
+      const clientEmail = fcmConfig.clientEmail;
 
       if (!projectId || !privateKey || !clientEmail) {
         return null;
@@ -37,7 +44,7 @@ export class FCMConfigService {
       };
     } else {
       // Legacy FCM API
-      const serverKey = this.configService.get<string>('FCM_SERVER_KEY');
+      const serverKey = fcmConfig.serverKey;
 
       if (!serverKey) {
         return null;

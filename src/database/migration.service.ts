@@ -17,7 +17,7 @@ export class MigrationService implements OnModuleInit {
     // Only run migrations automatically if enabled via environment variable
     // This allows you to disable auto-migrations in certain environments if needed
     const autoRunMigrations =
-      this.configService.get<string>('AUTO_RUN_MIGRATIONS') !== 'false';
+      this.configService.get<boolean>('autoRunMigrations') ?? true;
 
     if (!autoRunMigrations) {
       this.logger.log('Auto-running migrations is disabled');
