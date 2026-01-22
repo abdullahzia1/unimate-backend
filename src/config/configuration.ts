@@ -9,7 +9,7 @@ export default (): AppConfig => {
       port: parseInt(process.env.DATABASE_PORT || '5432', 10),
       username: process.env.DATABASE_USERNAME || 'postgres',
       password: process.env.DATABASE_PASSWORD || 'postgres',
-      database: process.env.DATABASE_NAME || 'spam_site_backend',
+      database: process.env.DATABASE_NAME || 'unimate_backend',
       // Disable automatic schema synchronization; use migrations instead.
       synchronize: false,
       ssl: process.env.DATABASE_SSL === 'true',

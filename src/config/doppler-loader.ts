@@ -22,7 +22,7 @@ export async function loadDopplerSecretsIfNeeded(): Promise<void> {
     return;
   }
 
-  const project = process.env.DOPPLER_PROJECT || 'spam-detector-backend';
+  const project = process.env.DOPPLER_PROJECT || 'unimate-backend';
   const config = process.env.DOPPLER_CONFIG || 'prd';
 
   try {

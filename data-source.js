@@ -10,7 +10,7 @@ const AppDataSource = new DataSource({
   port: parseInt(process.env.DATABASE_PORT || '5432', 10),
   username: process.env.DATABASE_USERNAME || 'postgres',
   password: process.env.DATABASE_PASSWORD || 'postgres',
-  database: process.env.DATABASE_NAME || 'spam_site_backend',
+  database: process.env.DATABASE_NAME || 'unimate_backend',
   entities: [
     join(__dirname, 'src', 'database', 'entities', '*.entity.{ts,js}'),
   ],
