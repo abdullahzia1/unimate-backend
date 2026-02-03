@@ -41,11 +41,13 @@ export class DepartmentAccessGuard implements CanActivate {
     }
 
     // Get department ID from request (query, params, or body)
-    const params = request.params as Record<string, string>;
-    const query = request.query as Record<string, string>;
-    const body = request.body as Record<string, string> | undefined;
+    const params = request.params;
+    const query = request.query;
+    const body = request.body;
     const departmentId =
-      params[paramName] || query[paramName] || body?.[paramName];
+      params[paramName] ||
+      query[paramName] ||
+      (body?.[paramName] as string | undefined);
 
     if (!departmentId) {
       throw new BadRequestException(
@@ -55,9 +57,9 @@ export class DepartmentAccessGuard implements CanActivate {
 
     // Get user's accessible department IDs
     const userDepartmentIds = getDepartmentIds({
-      accessLevel: user.accessLevel,
-      departmentId: user.departmentId,
-      departmentIds: user.departmentIds,
+      accessLevel: user.accessLevel ?? null,
+      departmentId: user.departmentId ?? null,
+      departmentIds: user.departmentIds ?? [],
     });
 
     // Check if user has access to the requested department

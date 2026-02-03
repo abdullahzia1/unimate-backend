@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { AccessLevel } from '../../../database/entities/user.entity';
 
 export interface JwtPayload {
@@ -26,6 +27,9 @@ export interface AuthResponse {
 
 export interface RequestWithUser extends Request {
   user: JwtPayload;
+  params: Record<string, string>;
+  query: Record<string, string>;
+  body: Record<string, unknown> | undefined;
 }
 
 export interface UserAccess {
