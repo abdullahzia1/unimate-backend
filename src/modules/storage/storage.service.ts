@@ -207,6 +207,7 @@ export class StorageService {
       };
       if (
         awsError.name === 'NotFound' ||
+        awsError.name === 'NoSuchKey' ||
         awsError.$metadata?.httpStatusCode === 404
       ) {
         return false;

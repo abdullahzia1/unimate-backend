@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Announcement } from './entities/announcement.entity';
+import { AvailableOptions } from './entities/available-options.entity';
 import { Department } from './entities/department.entity';
 import { Device } from './entities/device.entity';
 import { NotificationLog } from './entities/notification-log.entity';
@@ -28,6 +29,7 @@ import { MigrationService } from './migration.service';
         entities: [
           User,
           Department,
+          AvailableOptions,
           PendingAccount,
           Timetable,
           TimetableHistory,
@@ -49,6 +51,7 @@ import { MigrationService } from './migration.service';
     TypeOrmModule.forFeature([
       User,
       Department,
+      AvailableOptions,
       PendingAccount,
       Timetable,
       TimetableHistory,
